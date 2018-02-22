@@ -70,7 +70,7 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
     #Now do the training. 
     step , curEpoch, cum_loss, numFile, perinc = 0
     lowVal = 1000000.0 #Just make this some high number. 
-    
+
     start_time=time.time()
 
     with tf.Session() as sess:
@@ -158,7 +158,7 @@ if __name__=="__main__":
             'num_layers':dict['num_layers'],
             'n_hidden':dict['n_hidden'],
             'percent_val':dict['percent_val'],
-            'patience':dict['patience']
+            'patienceLimit':dict['patience']
             }
 
     main(**kwargs)
