@@ -45,6 +45,12 @@ Flow:
         Graph the desired on top. 
 
 
+Todo:
+    Add script to fetch data.
+    Clean out other scatter_net files.
+    Clean scatternet_matlab.
+    
+
 
 
 
