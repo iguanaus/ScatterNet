@@ -29,7 +29,7 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
             break
     train_loss_file = open(train_file_name,'w')
     val_loss_file = open(output_folder+"/val_loss_"+str(numFile) + ".txt",'w')
-    train_loss_file = open(output_folder+"/test_loss_" + str(numFile) + ".txt",'w')
+    test_loss_file = open(output_folder+"/test_loss_" + str(numFile) + ".txt",'w')
 
     # Getting the data. 
 
@@ -114,8 +114,8 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
 
         # Output test loss. 
         finalLoss, finalPer = sess.run([cost,peroff],feed_dict={X:val_X,y:val_Y})
-        train_loss_file.write(str(finalLoss) + "," + str(finalPer))
-        train_loss_file.flush()
+        test_loss_file.write(str(finalLoss) + "," + str(finalPer))
+        test_loss_file.flush()
 
     print "========Iterations completed in : " + str(time.time()-start_time) + " ========"
     sess.close()
