@@ -1,0 +1,4 @@
+*.csv
+*.txt
+ScatterNet_Tensorflow/data
+ScatterNet_Tensorflow/results
