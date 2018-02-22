@@ -20,6 +20,7 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     train_file_name = ""
+    numFile = 0 # How many times you have trained it. 
     while True:
         train_file_name = output_folder+"/train_loss_" + str(numFile) + ".txt"
         if os.path.isfile(train_file_name):
@@ -68,7 +69,7 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
     optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate).minimize(cost,global_step=global_step)
 
     #Now do the training. 
-    step , curEpoch, cum_loss, numFile, perinc = 0
+    step =0; curEpoch =0; cum_loss =0; perinc = 0;
     lowVal = 1000000.0 #Just make this some high number. 
 
     start_time=time.time()
@@ -144,6 +145,13 @@ if __name__=="__main__":
             dict[i] = False
         elif dict[i]=="True":
             dict[i] = True
+        try:
+            dict[i] = int(dict[i])
+        except:
+            try:
+                dict[i] = float(dict[i])
+            except:
+                pass
         
     kwargs = {  
             'data':dict['data'],
