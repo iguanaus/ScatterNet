@@ -1,0 +1,5 @@
+data/
+results/
+*.csv
+*.txt
+*.log
