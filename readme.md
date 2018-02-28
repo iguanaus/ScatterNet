@@ -25,7 +25,7 @@ This codebase is based on Python 2.7, and the pip packages used are shown in the
 
 1. Copy the github repo to your computer, and install the pip requirements.
 ```
-clone ____
+git clone https://github.com/iguanaus/ScatterNet.git
 cd ScatterNet
 pip install -r requirements.txt
 ```
