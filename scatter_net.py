@@ -17,21 +17,24 @@ from scatter_net_core import *
 # Batch Y - The output values (spectrum) ideal
 # myvals0 - The output values (spectrum) approximation
 # cost - the cost of the analysis. 
-def outputSpectsToFile(output_folder,spect_to_sample,batch_x,batch_y,myvals0,cost):
-    filename = output_folder + "test_out_file_"+str(spect_to_sample) + ".txt"
+def outputSpectsToFile(output_folder,spect_to_sample,batch_x,batch_y,myvals0,cost,x_mean,x_std):
+    filename = output_folder + "/test_out_file_"+str(spect_to_sample) + ".txt"
     f = open(filename,'w')
     f.write("XValue\nActual\nPredicted\n")
-    print("Batch: " , batch_x)
-    f.write(str(batch_x[0])+"\n")
+    xVals = batch_x[0]*x_std + x_mean
+    for i in list(xVals):
+        f.write(str(i,2)+",")
+    f.write('\n')
     for item in list(batch_y[0]):
         f.write(str(item) + ",")
     f.write("\n")
     for item in list(myvals0[0]):
         f.write(str(item) + ",")
+    f.flush()
     f.write("\n")
     f.flush()
     f.close()
-    print("Cost: " , mycost)
+    print("Cost: " , cost)
     print(myvals0)
     print("Wrote to: " + str(filename))
 
@@ -71,7 +74,7 @@ def design_spectrum(data,data_folder,output_folder,weight_name_load,spect_file,i
         step = 0
         curEpoch=0
         cum_loss = 0
-        cost_file_name = output_folder+"design_train_loss.txt"
+        cost_file_name = output_folder+"/design_train_loss.txt"
         cost_file = open(cost_file_name,'w')
         start_time=time.time()
         print("========                         Iterations started                  ========")
@@ -161,7 +164,7 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
 
     # Getting the data. 
 
-    train_X, train_Y , test_X, test_Y, val_X, val_Y = get_data(data,percentTest=percent_val)
+    train_X, train_Y , test_X, test_Y, val_X, val_Y , x_mean, x_std = get_data(data,percentTest=percent_val)
 
     x_size = train_X.shape[1]
     y_size = train_Y.shape[1]
@@ -193,6 +196,10 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
     peroff = tf.reduce_mean(dif/tf.abs(y))
     cost = tf.reduce_mean(tf.square(y-yhat))
     global_step = tf.Variable(0, trainable=False)
+    print("LR Rate: " , lr_rate)
+    print(int(train_X.shape[0]/n_batch))
+    print(lr_decay)
+    print("--done--")
     learning_rate = tf.train.exponential_decay(lr_rate,global_step,int(train_X.shape[0]/n_batch),lr_decay,staircase=False)
     optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate).minimize(cost,global_step=global_step)
 
@@ -216,8 +223,8 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
             batch_y = y_set[spect_to_sample : (spect_to_sample+1) ]
             mycost = sess.run(cost,feed_dict={X:batch_x,y:batch_y})
             myvals0 = sess.run(yhat,feed_dict={X:batch_x,y:batch_y})
-            outputSpectsToFile(output_folder,spect_to_sample,batch_x,batch_y,myvals0,mycost)
-            break
+            outputSpectsToFile(output_folder,spect_to_sample,batch_x,batch_y,myvals0,mycost,x_mean,x_std)
+            return
         print("========                         Iterations started                  ========")
         while curEpoch < numEpochs:
             batch_x = train_X[step * n_batch : (step+1) * n_batch]
@@ -307,8 +314,6 @@ if __name__=="__main__":
             print("Reuse weights must be set true for comparison, matching, or designing. Setting it to true....")
             time.sleep(1)
         dict['reuse_weights'] = True
-
-
         
     kwargs = {  
             'data':dict['data'],
@@ -330,7 +335,7 @@ if __name__=="__main__":
             }
 
 
-    if (dict['matchSpectrum'] or dict['designSpectrum']):
+    #if (dict['matchSpectrum'] or dict['designSpectrum']):
 
 
     main(**kwargs)

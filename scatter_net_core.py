@@ -61,10 +61,12 @@ def get_data(data,percentTest=.2,random_state=42):
     y_file = data+".csv"
     train_X = np.genfromtxt(x_file,delimiter=',')#[0:20000,:]
     train_Y = np.transpose(np.genfromtxt(y_file,delimiter=','))#[0:20000,:]
+    train_x_mean = train_X.mean(axis=0)
+    train_x_std = train_X.std(axis=0)
     train_X = (train_X-train_X.mean(axis=0))/train_X.std(axis=0)
     X_train, test_X, y_train, test_Y = train_test_split(train_X,train_Y,test_size=percentTest,random_state=random_state)
     X_test, X_val, y_test, y_val = train_test_split(test_X,test_Y,test_size=.5,random_state=random_state)
-    return X_train, y_train, X_test, y_test, X_val, y_val
+    return X_train, y_train, X_test, y_test, X_val, y_val, train_x_mean, train_x_std
 
 
 

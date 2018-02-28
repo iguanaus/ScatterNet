@@ -1,3 +1,6 @@
+% This file does the work. It will genreate all the data files given the bounds of the particle, the number of examples to generate, and the number of layers in the particle. It will save the data into the data/ folder. 
+%
+
 values = [];
 myspects = [];
 
@@ -16,9 +19,9 @@ while n < num_iteration
     r1 = round(rand*(up_bound-low_bound)+low_bound,1);
     r = [r r1];
   end
-  spect = scatter_0_generate_spectrum(r);%,r6,r7,r8]);
-  myspects = [myspects spect(1:2:401,1)];
-  values = [values ; r];%,r6,r7,r8]];
+  spect = scatter_0_generate_spectrum(r);
+  myspects = [myspects spect(1:2:401,1)]; % Use 200 points in the spectrum.
+  values = [values ; r];
   if rem(n, 100) ==0;
     disp('On: ')
     disp(n)
@@ -27,5 +30,5 @@ while n < num_iteration
 end
 toc
 
-csvwrite(strcat('data/',num2str(num_layers),'_layer_tio2_fixed_06_21_2.csv'),myspects);
-csvwrite(strcat('data/',num2str(num_layers),'_layer_tio2_fixed_06_21_2_val.csv'),values);
+csvwrite(strcat('data/',num2str(num_layers),'_layer_tio2.csv'),myspects);
+csvwrite(strcat('data/',num2str(num_layers),'_layer_tio2.csv'),values);

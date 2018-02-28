@@ -7,8 +7,61 @@
       ,'/|\'.         
 ---------------------- 
 
-Structure:
-  
+# Scatter Net
+
+An example repository of using machine learning to solve a physics problem. Based on the work presented in, Nanophotonic Particle Simulation and Inverse Design Using Artificial Neural Networks (https://arxiv.org/abs/1712.03222). This repository is specifically designed for solving inverse design problems, particularly surrounding photonics and optics.
+
+## Geting Started
+
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. This example will also generate Table I in the paper, and Figure 2,3, and 4.
+
+### Prerequisites
+
+To run the Matlab code, Matlab will need to be installed. For this code, we used Matlab R2017a. Note that the project can be done without Matlab, but comparisons of speed and data generation cannot be done unless Matlab is installed.
+
+This codebase is based on Python 2.7, and the pip packages used are shown in the requirements.txt file. To run this on AWS, use AMI ami-52bb0c32, and a p2.xlarge instance. 
+
+### Installing
+
+1. Copy the github repo to your computer, and install the pip requirements.
+```
+clone ____
+cd ScatterNet
+pip install -r requirements.txt
+```
+2. Option 1: Fetch the data
+```
+cd data
+sh fetchData.sh
+```
+2. Option 2: View and Generate the data
+```
+scatter_sim_1_plot_data.m
+scatter_sim_2_gen_data.m
+```
+3. Option 1: Fetch the models 
+```
+cd results
+sh fetchResults.sh
+```
+3. Option 2: Train the models (Table I)
+```
+sh demo.sh
+```
+4. Compare spetrums (Figure 2)
+```
+sh demo_compareSpect.sh
+```
+5. Perform Inverse Design (Figure 3)
+```
+sh demo_matchSpect.sh
+```
+6. Perform Optimization (Figure 4)
+```
+sh demo_designSpect.sh
+```
+
+## Structure
   ScatteringNet_Matlab:
     This is the matlab code repository, intended to be run on a cluster or a high performance computer. Depends on matlab.
 
@@ -45,28 +98,19 @@ Flow:
         Graph the desired on top. 
 
 
-Todo:
-    Add script to fetch data.
-    Clean out other scatter_net files.
-    Clean scatternet_matlab.
-    
+## Contributing
 
 
 
+## License
 
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
+## Acknowledgments
 
-
-
-
-
-
-
-
-
-
-
-
+* Hat tip to anyone who's code was used
+* Inspiration
+* etc
 
 
 
