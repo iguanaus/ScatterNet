@@ -39,9 +39,9 @@ def outputSpectsToFile(output_folder,spect_to_sample,batch_x,batch_y,myvals0,cos
     print("Wrote to: " + str(filename))
 
 #This gest a data file for spectrum matching. 
-def gen_data_first(data,test_file,data_folder):
+def gen_data_first(data,test_file,data_folder=None):
     x_file = data+"_val.csv"
-    y_file = data_folder+test_file+".csv"
+    y_file = test_file
     train_X = np.genfromtxt(x_file, delimiter=',')
     train_Y = np.array([np.genfromtxt(y_file, delimiter=',')])
     train_train_X = np.genfromtxt(data+"_val.csv",delimiter=',')
@@ -51,22 +51,39 @@ def gen_data_first(data,test_file,data_folder):
     return train_X, train_Y , max_val, min_val
 
 # This designs a spectrum. 
-def design_spectrum(data,data_folder,output_folder,weight_name_load,spect_file,init_list,num_layers,n_hidden,percent_val,lr_rate,lr_decay,num_iterations):
-    train_X, train_Y, max_val, min_val = gen_data_first(data,spect_file,data_folder)
+def design_spectrum(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_batch,numEpochs,lr_rate,lr_decay,num_layers,n_hidden,percent_val,patienceLimit,compare,sample_val,spect_to_sample,matchSpectrum,match_test_file,designSpectrum,design_test_file):
+    print(num_layers)
+    train_X, train_Y, max_val, min_val = gen_data_first(data,design_test_file)
 
     x_size = train_X.shape[1]   # Number of input nodes: 4 features and 1 bias
     y_size = train_Y.shape[1]   # Number of outcomes (3 iris flowers)
-    X = tf.get_variable(name="b1", shape=[1,x_size], initializer=tf.constant_initializer(init_list))
+    init_list_rand = tf.constant(np.random.rand(1,x_size)*40.0+30.0,dtype=tf.float32)
+
+    X = tf.get_variable(name="b1", initializer=init_list_rand)
     y = tf.placeholder("float", shape=[None, y_size])
-    weights = load_weights(output_folder,weight_name_load,num_layers)
+    print(num_layers)
+    weights, biases = load_weights(output_folder,weight_name_load,num_layers)
+    print(num_layers)
+    print(type(num_layers))
+    #This is the lambda list
+    lambdaList = range(400,801,2)
+    myl = np.array(lambdaList)
+    newL = 1.0/(myl*myl*3).astype(np.float32)
     # Forward propagation
-    yhat    = forwardprop(X, weights,num_layers,min_val,max_val)    
+    yhat    = forwardprop(X, weights,biases,num_layers,minLimit=30,maxLimit=70)    
+    # This will scale by the wavelength
+    yhat = tf.multiply(yhat,newL)
     # Backward propagation
-    cost = tf.reduce_sum(tf.square(y-yhat))
     topval = tf.abs(tf.matmul(y,tf.transpose(tf.abs(yhat)))) #This will select all the values that we want.
     botval = tf.abs(tf.matmul(tf.abs(y-1),tf.transpose(tf.abs(yhat)))) #This will get the values that we do not want. 
     cost = topval/botval#botval/topval#topval#/botval
-    optimizer = tf.train.RMSPropOptimizer(learning_rate=lr_rate, decay=lr_decay).minimize(cost,var_list=[X])
+    #optimizer = tf.train.RMSPropOptimizer(learning_rate=lr_rate, decay=lr_decay).minimize(cost,var_list=[X])
+    global_step = tf.Variable(0, trainable=False)
+
+
+    learning_rate = tf.train.exponential_decay(lr_rate,global_step,1000,lr_decay,staircase=False)
+    optimizer = tf.train.RMSPropOptimizer(learning_rate=lr_rate).minimize(cost,global_step=global_step,var_list=[X])
+
     # Run SGD
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
@@ -78,7 +95,7 @@ def design_spectrum(data,data_folder,output_folder,weight_name_load,spect_file,i
         cost_file = open(cost_file_name,'w')
         start_time=time.time()
         print("========                         Iterations started                  ========")
-        while step < num_iterations:
+        while step < numEpochs*10:
 
             sess.run(optimizer, feed_dict={y: train_Y})
             loss = sess.run(cost,feed_dict={y:train_Y})
@@ -92,8 +109,8 @@ def design_spectrum(data,data_folder,output_folder,weight_name_load,spect_file,i
     sess.close()
 
 # This matches a spectrum.
-def match_spectrum(data,data_folder,output_folder,weight_name_load,test_file,num_layers,n_hidden,percent_val,lr_rate,lr_decay):
-    train_X, train_Y, max_val, min_val = gen_data_first(data,test_file,data_folder)
+def match_spectrum(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_batch,numEpochs,lr_rate,lr_decay,num_layers,n_hidden,percent_val,patienceLimit,compare,sample_val,spect_to_sample,matchSpectrum,match_test_file,designSpectrum,design_test_file):
+    train_X, train_Y, max_val, min_val = get_data(match_test_file,percentTest=0)
     print("Train x shape is: " , train_X.shape)
     x_size = train_X.shape[1]   # Number of input nodes: 4 features and 1 bias
     y_size = train_Y.shape[1]   # Number of outcomes (3 iris flowers)
@@ -103,15 +120,15 @@ def match_spectrum(data,data_folder,output_folder,weight_name_load,test_file,num
     weights, biases = load_weights(output_folder,weight_name_load,num_layers)
     while i < 50:
         i += 1
-        init_list_rand = tf.constant(np.random.rand(1,x_size)*50.0+30.0,dtype=tf.float32)
+        init_list_rand = tf.constant(np.random.rand(1,x_size)*40.0+30.0,dtype=tf.float32)
         X = tf.get_variable(name="b1"+ str(i), initializer=init_list_rand)
         y = tf.placeholder("float", shape=[None, y_size])
         # Forward propagation
         yhat    = forwardprop(X, weights,biases,num_layers)
         # Backward propagation
-        extra_cost = tf.reduce_sum(tf.square(tf.minimum(X,30)-30) + tf.square(tf.maximum(X,70)-70))
+        #extra_cost = tf.reduce_sum(tf.square(tf.minimum(X,30)-30) + tf.square(tf.maximum(X,70)-70))
         #Advanced Version
-        cost = tf.reduce_sum(tf.square(y-yhat))+5.0*extra_cost*extra_cost
+        cost = tf.reduce_sum(tf.square(y-yhat))#+5.0*extra_cost*extra_cost
         optimizer = tf.train.AdamOptimizer(learning_rate=lr_rate, beta2=lr_decay,epsilon=0.1).minimize(cost,var_list=[X])
         with tf.Session() as sess:
             init = tf.global_variables_initializer()
@@ -122,7 +139,7 @@ def match_spectrum(data,data_folder,output_folder,weight_name_load,test_file,num
             cost_file = open(cost_file_name,'w')            
             print("========                         Iterations started                  ========")
             prev_losses = 0
-            while step < num_iterations:
+            while step < numEpochs*10:
                 sess.run(optimizer,feed_dict={y:train_Y})
                 cum_loss += sess.run(cost,feed_dict={y:train_Y})
                 step += 1
@@ -161,10 +178,18 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
     train_loss_file = open(train_file_name,'w')
     val_loss_file = open(output_folder+"/val_loss_"+str(numFile) + ".txt",'w')
     test_loss_file = open(output_folder+"/test_loss_" + str(numFile) + ".txt",'w')
+    spec_file = open(output_folder+"/spec_file_" + str(numFile) + ".txt",'w')
 
     # Getting the data. 
 
     train_X, train_Y , test_X, test_Y, val_X, val_Y , x_mean, x_std = get_data(data,percentTest=percent_val)
+
+    # Write the mean/std to the file.
+    out_mean = [str(float(i)) for i in list(x_mean)]
+    out_std = [str(float(i)) for i in list(x_std)]
+    spec_file.write(','.join(out_mean)+'\n' + ','.join(out_std)+'\n')
+    spec_file.flush()
+    spec_file.close()
 
     x_size = train_X.shape[1]
     y_size = train_Y.shape[1]
@@ -271,15 +296,15 @@ def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_ba
 if __name__=="__main__":
     parser = argparse.ArgumentParser(
         description="Physics Net Training")
-    parser.add_argument("--data",type=str,default='data/7_layer_tio2') # Where the data file is. Note: This assumes a file of _val.csv and .csv 
+    parser.add_argument("--data",type=str,default='data/5_layer_tio2') # Where the data file is. Note: This assumes a file of _val.csv and .csv 
     parser.add_argument("--reuse_weights",type=str,default='False') # Whether to load the weights or not. Note this just needs to be set to true, then the output folder directed to the same location. 
-    parser.add_argument("--output_folder",type=str,default='results/7_Layer_TiO2') #Where to output the results to. Note: No / at the end. 
+    parser.add_argument("--output_folder",type=str,default='results/5_Layer_TiO2') #Where to output the results to. Note: No / at the end. 
     parser.add_argument("--weight_name_load",type=str,default="")#This would be something that goes infront of w_1.txt. This would be used in saving the weights. In most cases, just leave this as is, it will naturally take care of it. 
     parser.add_argument("--weight_name_save",type=str,default="") #Similiar to above, but for saving now. 
     parser.add_argument("--n_batch",type=int,default=100) # Batch Size
     parser.add_argument("--numEpochs",type=int,default=5000) #Max number of epochs to consider at maximum, if patience condition is not met. 
-    parser.add_argument("--lr_rate",default=.0006) # Learning Rate. 
-    parser.add_argument("--lr_decay",default=.99) # Learning rate decay. It decays by this factor every epoch.
+    parser.add_argument("--lr_rate",type=float,default=.001) # Learning Rate. 
+    parser.add_argument("--lr_decay",type=float,default=.7) # Learning rate decay. It decays by this factor every epoch.
     parser.add_argument("--num_layers",default=4) # Number of layers in the network. 
     parser.add_argument("--n_hidden",default=225) # Number of neurons per layer. Fully connected layers. 
     parser.add_argument("--percent_val",default=.2) # Amount of the data to split for validation/test. The validation/test are both split equally. 
@@ -288,25 +313,27 @@ if __name__=="__main__":
     parser.add_argument("--sample_val",default='True') # Wether it should sample from validation or not, for the purposes of graphing. 
     parser.add_argument("--spect_to_sample",type=int,default=300) # Zero Indexing for this. Position in the data file to sample from (note it will take from validation)
     parser.add_argument("--matchSpectrum",default='False') # If it should match an already existing spectrum file. 
-    parser.add_argument("--match_test_file",default='Test TiO2 Fixed/test_tio2_fixed33.8_32.3_36.3_35.2_8.9') # Location of the file with the spectrum in it. 
+    parser.add_argument("--match_test_file",default='results/2_layer_tio2/test_47.5_45.3') # Location of the file with the spectrum in it. 
     parser.add_argument("--designSpectrum",default='False') # If it should 
-    parser.add_argument("--design_test_file",default='test_answer') # This is a file that should contain 0's and 1's where it should maximize and not maximize. 
+    parser.add_argument("--design_test_file",default='data/test_gen_spect.csv') # This is a file that should contain 0's and 1's where it should maximize and not maximize. 
 
     args = parser.parse_args()
     dict = vars(args)
+    print(dict)
 
-    for i in dict:
-        if (dict[i]=="False"):
-            dict[i] = False
-        elif dict[i]=="True":
-            dict[i] = True
+    for key,value in dict.iteritems():
+        if (dict[key]=="False"):
+            dict[key] = False
+        elif dict[key]=="True":
+            dict[key] = True
         try:
-            dict[i] = int(dict[i])
+            if dict[key].is_integer():
+                dict[key] = int(dict[key])
+            else:
+                dict[key] = float(dict[key])
         except:
-            try:
-                dict[i] = float(dict[i])
-            except:
-                pass
+            pass
+    print (dict)
 
     #Note that reuse MUST be set to true.
     if (dict['compare'] or dict['matchSpectrum'] or dict['designSpectrum']):
@@ -325,20 +352,25 @@ if __name__=="__main__":
             'numEpochs':dict['numEpochs'],
             'lr_rate':dict['lr_rate'],
             'lr_decay':dict['lr_decay'],
-            'num_layers':dict['num_layers'],
-            'n_hidden':dict['n_hidden'],
+            'num_layers':int(dict['num_layers']),
+            'n_hidden':int(dict['n_hidden']),
             'percent_val':dict['percent_val'],
             'patienceLimit':dict['patience'],
             'compare':dict['compare'],
             'sample_val':dict['sample_val'],
-            'spect_to_sample':dict['spect_to_sample']
+            'spect_to_sample':dict['spect_to_sample'],
+            'matchSpectrum':dict['matchSpectrum'],
+            'match_test_file':dict['match_test_file'],
+            'designSpectrum':dict['designSpectrum'],
+            'design_test_file':dict['design_test_file']
             }
 
-
-    #if (dict['matchSpectrum'] or dict['designSpectrum']):
-
-
-    main(**kwargs)
+    if kwargs['designSpectrum'] == True:
+        design_spectrum(**kwargs)
+    elif kwargs['matchSpectrum'] == True:
+        match_spectrum(**kwargs)
+    else:
+        main(**kwargs)
 
 
 

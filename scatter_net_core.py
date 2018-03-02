@@ -41,7 +41,10 @@ def load_weights(output_folder,weight_load_name,num_layers):
         biases.append(b_i)
     return weights , biases
 
-def forwardprop(X, weights, biases, num_layers,dropout=False):
+def forwardprop(X, weights, biases, num_layers,dropout=False,minLimit=None,maxLimit=None):
+    if (minLimit != None):
+        X = tf.maximum(X,minLimit)
+        X = tf.minimum(X,maxLimit)
     htemp = None
     for i in xrange(0, num_layers):
         if i ==0:
