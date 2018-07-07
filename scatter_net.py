@@ -158,7 +158,7 @@ def match_spectrum(data,reuse_weights,output_folder,weight_name_save,weight_name
     pass
 
 
-def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_batch,numEpochs,lr_rate,lr_decay,num_layers,n_hidden,percent_val,patienceLimit = 10,compare=False,sample_val=True,spect_to_sample=300):
+def main(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_batch,numEpochs,lr_rate,lr_decay,num_layers,n_hidden,match_test_file,design_test_file,matchSpectrum,designSpectrum,percent_val,patienceLimit = 10,compare=False,sample_val=True,spect_to_sample=300):
 
     # This is to ensure similiar results throughout. 
     RANDOM_SEED = 42
