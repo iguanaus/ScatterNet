@@ -23,7 +23,7 @@ def outputSpectsToFile(output_folder,spect_to_sample,batch_x,batch_y,myvals0,cos
     f.write("XValue\nActual\nPredicted\n")
     xVals = batch_x[0]*x_std + x_mean
     for i in list(xVals):
-        f.write(str(i,2)+",")
+        f.write(str(i)+",")
     f.write('\n')
     for item in list(batch_y[0]):
         f.write(str(item) + ",")
@@ -110,7 +110,9 @@ def design_spectrum(data,reuse_weights,output_folder,weight_name_save,weight_nam
 
 # This matches a spectrum.
 def match_spectrum(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_batch,numEpochs,lr_rate,lr_decay,num_layers,n_hidden,percent_val,patienceLimit,compare,sample_val,spect_to_sample,matchSpectrum,match_test_file,designSpectrum,design_test_file):
-    train_X, train_Y, max_val, min_val = get_data(match_test_file,percentTest=0)
+    # Change made on 08/16. Switching to gen_data_first. 
+    train_X, train_Y, max_val, min_val = gen_data_first(data,design_test_file)
+    #train_X, train_Y , test_X, test_Y, val_X, val_Y , x_mean, x_std = get_data(match_test_file,percentTest=0)
     print("Train x shape is: " , train_X.shape)
     x_size = train_X.shape[1]   # Number of input nodes: 4 features and 1 bias
     y_size = train_Y.shape[1]   # Number of outcomes (3 iris flowers)
