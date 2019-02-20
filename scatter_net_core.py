@@ -41,17 +41,17 @@ def load_weights(output_folder,weight_load_name,num_layers):
         biases.append(b_i)
     return weights , biases
 
-def forwardprop(X, weights, biases, num_layers,dropout=False,minLimit=None,maxLimit=None):
-    if (minLimit != None):
-        X = tf.maximum(X,minLimit)
-        X = tf.minimum(X,maxLimit)
+def forwardprop(X, weights, biases, num_layers, dropout=False, minLimit=None, maxLimit=None):
+    if minLimit is not None:
+        X = tf.maximum(X, minLimit)
+        X = tf.minimum(X, maxLimit)
     htemp = None
     for i in xrange(0, num_layers):
         if i ==0:
-            htemp = tf.nn.relu(tf.add(tf.matmul(X,weights[i]),biases[i]))
-        else:   
-            htemp = tf.nn.relu(tf.add(tf.matmul(htemp,weights[i]),biases[i]))
-    yval = tf.add(tf.matmul(htemp,weights[-1]),biases[-1])
+            htemp = tf.nn.relu(tf.add(tf.matmul(X, weights[i]), biases[i]))
+        else:
+            htemp = tf.nn.relu(tf.add(tf.matmul(htemp, weights[i]), biases[i]))
+    yval = tf.add(tf.matmul(htemp, weights[-1]), biases[-1])
     return yval
 
 #This method reads from the 'X' and 'Y' file and gives in the input as an array of arrays (aka if the input dim is 5 and there are 10 training sets, the input is a 10X 5 array)
