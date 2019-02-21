@@ -130,7 +130,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
  
 MIT Department of Physics. All rights reserved.
 Version 1.0 - 06/10/2017
-Produced and used by John Peurifoy. Assistance and guidance provided by: Li Jing, Yichen Shen, and Yi Yang.
+Produced and used by John Peurifoy. Assistance and guidance provided by: Li Jing, Yichen Shen, and Yi Yang. Updates and code fixes provided by Samuel Kim. 
 A product of a collaboration between Max Tegmark's and Marin Soljacic's group. 
 Originally created 04/24/2017
 
