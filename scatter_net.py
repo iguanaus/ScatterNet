@@ -54,10 +54,6 @@ def gen_data_first(data,test_file,data_folder=None):
 def design_spectrum(data,reuse_weights,output_folder,weight_name_save,weight_name_load,n_batch,numEpochs,lr_rate,lr_decay,num_layers,n_hidden,percent_val,patienceLimit,compare,sample_val,spect_to_sample,matchSpectrum,match_test_file,designSpectrum,design_test_file):
     print(num_layers)
     train_X, train_Y, max_val, min_val = gen_data_first(data,design_test_file)
-    spec_file_name = output_folder + "/spec_file_0" + ".txt"
-    data = np.loadtxt(spec_file_name, delimiter=",")
-    x_mean = data[0, :]
-    x_std = data[1, :]
 
     x_size = train_X.shape[1]   # Number of input nodes: 4 features and 1 bias
     y_size = train_Y.shape[1]   # Number of outcomes (3 iris flowers)
@@ -66,7 +62,7 @@ def design_spectrum(data,reuse_weights,output_folder,weight_name_save,weight_nam
     X = tf.get_variable(name="b1", initializer=init_list_rand)
     y = tf.placeholder("float", shape=[None, y_size])
     print(num_layers)
-    weights, biases = load_weights(output_folder, weight_name_load, num_layers)
+    weights, biases = load_weights(output_folder,weight_name_load,num_layers)
     print(num_layers)
     print(type(num_layers))
     #This is the lambda list
@@ -74,19 +70,19 @@ def design_spectrum(data,reuse_weights,output_folder,weight_name_save,weight_nam
     myl = np.array(lambdaList)
     newL = 1.0/(myl*myl*3).astype(np.float32)
     # Forward propagation
-    X_norm = (X - x_mean) / x_std
-    yhat = forwardprop(X_norm, weights,biases, num_layers, minLimit=(30-x_mean)/x_std, maxLimit=(70-x_mean)/x_std)
+    yhat    = forwardprop(X, weights,biases,num_layers,minLimit=30,maxLimit=70)    
     # This will scale by the wavelength
     yhat = tf.multiply(yhat,newL)
     # Backward propagation
-    topval = tf.abs(tf.matmul(y,tf.transpose(tf.abs(yhat)))) # This will select all the values that we want.
-    botval = tf.abs(tf.matmul(tf.abs(y-1),tf.transpose(tf.abs(yhat)))) # This will get the values that we do not want.
+    topval = tf.abs(tf.matmul(y,tf.transpose(tf.abs(yhat)))) #This will select all the values that we want.
+    botval = tf.abs(tf.matmul(tf.abs(y-1),tf.transpose(tf.abs(yhat)))) #This will get the values that we do not want. 
     cost = topval/botval#botval/topval#topval#/botval
-    # optimizer = tf.train.RMSPropOptimizer(learning_rate=lr_rate, decay=lr_decay).minimize(cost,var_list=[X])
+    #optimizer = tf.train.RMSPropOptimizer(learning_rate=lr_rate, decay=lr_decay).minimize(cost,var_list=[X])
     global_step = tf.Variable(0, trainable=False)
 
-    learning_rate = tf.train.exponential_decay(lr_rate,global_step,1000,lr_decay, staircase=False)
-    optimizer = tf.train.RMSPropOptimizer(learning_rate=lr_rate).minimize(cost, global_step=global_step, var_list=[X])
+
+    learning_rate = tf.train.exponential_decay(lr_rate,global_step,1000,lr_decay,staircase=False)
+    optimizer = tf.train.RMSPropOptimizer(learning_rate=lr_rate).minimize(cost,global_step=global_step,var_list=[X])
 
     # Run SGD
     with tf.Session() as sess:
@@ -103,7 +99,7 @@ def design_spectrum(data,reuse_weights,output_folder,weight_name_save,weight_nam
 
             sess.run(optimizer, feed_dict={y: train_Y})
             loss = sess.run(cost,feed_dict={y:train_Y})
-            cum_loss += loss
+            cum_loss += loss        
             step += 1
             cost_file.write(str(float(cum_loss))+str("\n"))
             print("Step: " + str(step) + " : Loss: " + str(cum_loss) + " : " + str(X.eval()))
