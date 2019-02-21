@@ -300,7 +300,7 @@ if __name__=="__main__":
         description="Physics Net Training")
     parser.add_argument("--data",type=str,default='data/5_layer_tio2') # Where the data file is. Note: This assumes a file of _val.csv and .csv 
     parser.add_argument("--reuse_weights",type=str,default='False') # Whether to load the weights or not. Note this just needs to be set to true, then the output folder directed to the same location. 
-    parser.add_argument("--output_folder",type=str,default='results/5_layer_tio2') #Where to output the results to. Note: No / at the end. 
+    parser.add_argument("--output_folder",type=str,default='results/5_Layer_TiO2') #Where to output the results to. Note: No / at the end. 
     parser.add_argument("--weight_name_load",type=str,default="")#This would be something that goes infront of w_1.txt. This would be used in saving the weights. In most cases, just leave this as is, it will naturally take care of it. 
     parser.add_argument("--weight_name_save",type=str,default="") #Similiar to above, but for saving now. 
     parser.add_argument("--n_batch",type=int,default=100) # Batch Size
