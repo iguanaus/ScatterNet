@@ -221,7 +221,7 @@ tables==3.3.0
 tabulate==0.8.2
 TBB==0.1
 tensorboard==1.8.0
-tensorflow==1.8.0
+tensorflow==1.15.4
 tensorflow-tensorboard==0.4.0rc3
 tensorpack==0.8.5
 termcolor==1.1.0
