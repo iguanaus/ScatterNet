@@ -36,7 +36,7 @@ configparser==3.5.0
 constant==0.0.4
 constantly==15.1.0
 constants==0.6.0
-cryptography==2.0.3
+cryptography==3.2
 cssselect==1.0.1
 cycler==0.10.0
 decorator==4.0.11
