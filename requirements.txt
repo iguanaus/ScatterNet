@@ -45,7 +45,7 @@ dj-static==0.0.6
 Django==1.10
 django-extensions==1.7.2
 django-filter==0.11.0
-djangorestframework==3.4.5
+djangorestframework==3.11.2
 dlib==19.10.0
 docutils==0.14
 dos2unix==1
