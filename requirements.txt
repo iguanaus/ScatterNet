@@ -96,7 +96,7 @@ libtiff==0.4.0
 linecache2==1.0.0
 livereload==2.5.2
 llvmlite==0.22.0
-lxml==4.6.2
+lxml==4.6.3
 macholib==1.5.1
 Markdown==2.6.9
 MarkupSafe==0.23
