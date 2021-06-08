@@ -132,7 +132,7 @@ pexpect==4.2.1
 picklable-itertools==0.1.1
 pickleshare==0.7.4
 pilite==1.0.0
-Pillow==8.1.1
+Pillow==8.2.0
 port-for==0.3.1
 progressbar2==3.10.0
 prompt-toolkit==1.0.7
