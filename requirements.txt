@@ -119,7 +119,7 @@ numba==0.37.0
 numexpr==2.6.2
 numpy==1.14.3
 olefile==0.44
-opencv-python==3.4.0.12
+opencv-python==4.2.0.32
 packaging==16.8
 pandas==0.18.1
 paramiko==2.3.1
