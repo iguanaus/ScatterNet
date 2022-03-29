@@ -122,7 +122,7 @@ olefile==0.44
 opencv-python==3.4.0.12
 packaging==16.8
 pandas==0.18.1
-paramiko==2.3.1
+paramiko==2.10.1
 parsel==1.2.0
 pathlib==1.0.1
 pathlib2==2.1.0
