@@ -103,7 +103,7 @@ MarkupSafe==0.23
 matplotlib==2.0.2
 mccabe==0.6.1
 mechanize==0.3.3
-mistune==0.8.1
+mistune==2.0.3
 mock==2.0.0
 modulegraph==0.10.4
 mpmath==0.19
