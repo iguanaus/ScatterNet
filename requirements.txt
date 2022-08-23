@@ -109,7 +109,7 @@ modulegraph==0.10.4
 mpmath==0.19
 msgpack-numpy==0.4.1
 msgpack-python==0.4.8
-nbconvert==4.2.0
+nbconvert==6.5.1
 nbformat==4.1.0
 networkx==1.11
 nltk==3.2.2
