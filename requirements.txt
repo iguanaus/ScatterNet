@@ -83,7 +83,7 @@ iso8601==0.1.10
 isort==4.2.15
 itsdangerous==0.24
 Jinja2==2.11.3
-joblib==0.11
+joblib==1.2.0
 jsonschema==2.5.1
 jupyter==1.0.0
 jupyter-client==4.4.0
